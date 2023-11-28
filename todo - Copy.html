@@ -1,0 +1,267 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <style>
+        body {
+			
+            background-color: #7FDBDA;
+        }
+        .table-header {
+            font-size: 1.25rem; /* Increase font size for table headers */
+        }
+        .table-cell {
+            font-size: 1.125rem; /* Increase font size for table cells */
+        }
+        /* Hover effect for table rows */
+        .hover-row:hover {
+            background-color: #f3f3f3;
+        }
+        /* Hover effect for the plus button */
+        .hover-button:hover {
+            background-color: #e3342f;
+        }
+        /* Style for the input field to match the cell size */
+        .cell-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            padding: 12px 24px; /* Match the padding of the table-cell */
+            font-size: 1.125rem; /* Match the font size of the table-cell */
+        }
+        /* Style for the delete button */
+        .delete-button {
+            cursor: pointer;
+            color: red;
+        }
+        .delete-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+		let isEditing = false;
+
+		function createEditableCell(content, row, isTaskName) {
+    var cell = document.createElement('td');
+    cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
+
+    if (isTaskName) {
+        // For task name, use a text input
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'cell-input';
+        input.value = content;
+    } else {
+        // For pending status, use a dropdown
+        var input = document.createElement('select');
+        input.className = 'cell-input';
+
+        var optionTrue = document.createElement('option');
+        optionTrue.value = 'True';
+        optionTrue.text = 'True';
+        input.appendChild(optionTrue);
+
+        var optionFalse = document.createElement('option');
+        optionFalse.value = 'False';
+        optionFalse.text = 'False';
+        input.appendChild(optionFalse);
+
+        input.value = content; // Set the current value as selected
+    }
+
+    input.onfocus = function() {
+        isEditing = true;
+    };
+
+    input.onchange = async function() {
+        await handleCellUpdate(input, cell, row, isTaskName);
+        isEditing = false;
+    };
+
+    input.onblur = async function() {
+        await handleCellUpdate(input, cell, row, isTaskName);
+        isEditing = false;
+    };
+
+    cell.appendChild(input);
+    return cell;
+}
+
+async function handleCellUpdate(input, cell, row, isTaskName) {
+    let newValue;
+    if (isTaskName) {
+        newValue = input.value;
+        row.setAttribute('data-taskname', newValue);
+    } else {
+        newValue = input.value; // Get the selected value from the dropdown
+    }
+    await updateTask(row);
+
+    // Check if the input is still a child of the cell before removing
+    if (cell.contains(input)) {
+        cell.removeChild(input);
+    }
+
+    cell.innerHTML = newValue;
+    cell.classList.add('editable');
+}
+
+
+async function updateTask(row) {
+    var originalTaskName = row.getAttribute('data-original-taskname');
+	var updatedTaskName = row.getAttribute('data-taskname') || row.cells[0].innerText;
+     var pendingStatus = row.cells[1].querySelector('select').value === 'True';
+     //var pendingStatus = row.cells[1].querySelector('input').checked;
+    var data = {
+        name: updatedTaskName,
+        pending: pendingStatus
+    };
+
+    // Check if originalTaskName is not null
+    if (!originalTaskName) {
+        console.error("Original task name is missing.");
+        return;
+    }
+
+    var apiURL = `http://localhost:8080/http://3.109.59.178:8000/task/${encodeURIComponent(originalTaskName)}`;
+    var requestOptions = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    };
+
+    // Log the request details
+    console.log("Sending API Request:");
+    console.log("URL:", apiURL);
+    console.log("Request Options:", requestOptions);
+
+    try {
+        const response = await fetch(apiURL, requestOptions);
+        // ... rest of the code ...
+    } catch (error) {
+        console.error('Error updating task:', updatedTaskName, error);
+    }
+}
+
+function createDeleteCell(rowIndex) {
+    var cell = document.createElement('td');
+    cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
+    var button = document.createElement('span');
+    button.innerText = 'Delete';
+    button.className = 'delete-button';
+    button.onclick = function() {
+        deleteRow(rowIndex);
+    };
+    cell.appendChild(button);
+    return cell;
+}
+
+function deleteRow(rowIndex) {
+    var table = document.getElementById("taskTable");
+    var row = table.rows[rowIndex];
+    var taskName = row.cells[0].innerText;
+    console.log('Deleted task:', taskName);
+    table.deleteRow(rowIndex);
+}
+
+function makeCellsEditable() {
+    var cells = document.querySelectorAll('#taskTable .editable');
+    cells.forEach(function(cell) {
+        cell.onclick = function() {
+            var input = createEditableCell(this.innerText, this.parentNode).firstChild;
+            this.innerHTML = '';
+            this.appendChild(input);
+            input.focus();
+        };
+    });
+}
+
+function populateTable(data) {
+    const table = document.getElementById("taskTable").getElementsByTagName('tbody')[0];
+    table.innerHTML = ''; // Clear the table before repopulating
+
+    Object.entries(data.Tasks).forEach(([taskName, pendingStatus]) => {
+        const row = table.insertRow();
+        row.setAttribute('data-original-taskname', taskName); // Set original task name for each loaded task
+        const cell1 = createEditableCell(taskName, row, true);
+        const cell2 = createEditableCell(pendingStatus ? 'True' : 'False', row, false);
+        const cell3 = createDeleteCell(table.rows.length); // Pass the updated rowIndex
+        row.appendChild(cell1);
+        row.appendChild(cell2);
+        row.appendChild(cell3);
+        row.classList.add('hover-row');
+    });
+    makeCellsEditable(); // Make cells editable after populating
+	}
+
+async function loadTasks() {
+	 if (!isEditing) {
+    try {
+        const response = await fetch('http://localhost:8080/http://3.109.59.178:8000/');
+        const data = await response.json();
+        populateTable(data); // Call a separate function to populate the table
+    } catch (error) {
+        console.error('Error fetching tasks:', error);
+    }
+}
+}
+
+function addRow() {
+    var table = document.getElementById("taskTable");
+    var row = table.insertRow(-1);
+    row.setAttribute('data-original-taskname', 'New Task');
+    var cell1 = createEditableCell('New Task', row, true);
+    var cell2 = createEditableCell('False', row, false);
+    var cell3 = createDeleteCell(row.rowIndex);
+    row.appendChild(cell1);
+    row.appendChild(cell2);
+    row.appendChild(cell3);
+    row.classList.add('hover-row');
+    cell1.firstChild.focus();
+}
+
+window.onload = function() {
+     makeCellsEditable();
+    loadTasks(); // Load tasks initially
+    setInterval(loadTasks, 800	); 
+};
+ 
+    </script>
+</head>
+<body>
+    <div class="flex items-center justify-center h-screen">
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="flex justify-between items-center bg-red-400 text-white text-2xl px-6 py-4 rounded-t-lg">
+                <h3>Tasks</h3>
+                <button onclick="addRow()" class="text-white text-4xl hover-button hover:bg-red-500 transition-colors duration-150"><i class="fas fa-plus-circle"></i></button>
+            </div>
+            <table id="taskTable" class="table-fixed w-full">
+                <thead>
+                    <tr>
+                        <th class="w-1/2 px-6 py-3 table-header">Task Name</th>
+                        <th class="w-1/4 px-6 py-3 table-header">Pending</th>
+                        <th class="w-1/4 px-6 py-3 table-header">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hover-row">
+
+                        </td>
+                    </tr>
+                    <tr class="hover-row">
+                       
+
+                            
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

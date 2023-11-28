@@ -1,0 +1,155 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task List</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <style>
+        body {
+            background-color: #7FDBDA;
+        }
+        .table-header {
+            font-size: 1.25rem; /* Increase font size for table headers */
+        }
+        .table-cell {
+            font-size: 1.125rem; /* Increase font size for table cells */
+        }
+        /* Hover effect for table rows */
+        .hover-row:hover {
+            background-color: #f3f3f3;
+        }
+        /* Hover effect for the plus button */
+        .hover-button:hover {
+            background-color: #e3342f;
+        }
+        /* Style for the input field to match the cell size */
+        .cell-input {
+            width: 100%;
+            box-sizing: border-box;
+            border: none;
+            padding: 12px 24px; /* Match the padding of the table-cell */
+            font-size: 1.125rem; /* Match the font size of the table-cell */
+        }
+        /* Style for the delete button */
+        .delete-button {
+            cursor: pointer;
+            color: red;
+        }
+        .delete-button:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        // Function to create an editable cell
+        function createEditableCell(content) {
+            var cell = document.createElement('td');
+            cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'cell-input';
+            input.value = content;
+            input.onkeypress = function(event) {
+                if (event.key === 'Enter') {
+                    cell.innerHTML = this.value; // Update the cell with the input value
+                    cell.classList.add('editable'); // Make the cell editable again
+                }
+            };
+            input.onblur = function() {
+                cell.innerHTML = this.value; // Update the cell with the input value
+                cell.classList.add('editable'); // Make the cell editable again
+            };
+            cell.appendChild(input);
+            return cell;
+        }
+
+        // Function to add a new editable row when the plus button is clicked
+        function addRow() {
+            var table = document.getElementById("taskTable");
+            var row = table.insertRow(-1); // Insert a row at the end of the table
+            var cell1 = createEditableCell('New Task');
+            var cell2 = createEditableCell('False');
+            var cell3 = createDeleteCell(row.rowIndex);
+            row.appendChild(cell1);
+            row.appendChild(cell2);
+            row.appendChild(cell3);
+            row.classList.add('hover-row'); // Add hover effect to the new row
+            cell1.firstChild.focus(); // Automatically focus the input for the task name
+        }
+
+        // Function to create a delete cell with a button
+        function createDeleteCell(rowIndex) {
+            var cell = document.createElement('td');
+            cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
+            var button = document.createElement('span');
+            button.innerText = 'Delete';
+            button.className = 'delete-button';
+            button.onclick = function() {
+                deleteRow(rowIndex);
+            };
+            cell.appendChild(button);
+            return cell;
+        }
+
+        // Function to delete a row and log the deletion
+        function deleteRow(rowIndex) {
+            var table = document.getElementById("taskTable");
+            var row = table.rows[rowIndex];
+            var taskName = row.cells[0].innerText;
+            console.log('Deleted task:', taskName); // Log the deleted task name
+            table.deleteRow(rowIndex);
+        }
+
+        // Function to make existing cells editable
+        function makeCellsEditable() {
+            var cells = document.querySelectorAll('#taskTable .editable');
+            cells.forEach(function(cell) {
+                cell.onclick = function() {
+                    var input = createEditableCell(this.innerText).firstChild;
+                    this.innerHTML = '';
+                    this.appendChild(input);
+                    input.focus();
+                };
+            });
+        }
+
+        // Call this function to make cells editable on page load
+        window.onload = makeCellsEditable;
+    </script>
+</head>
+<body>
+    <div class="flex items-center justify-center h-screen">
+        <div class="bg-white rounded-lg shadow-lg">
+            <div class="flex justify-between items-center bg-red-400 text-white text-2xl px-6 py-4 rounded-t-lg">
+                <h3>Tasks</h3>
+                <button onclick="addRow()" class="text-white text-4xl hover-button hover:bg-red-500 transition-colors duration-150"><i class="fas fa-plus-circle"></i></button>
+            </div>
+            <table id="taskTable" class="table-fixed w-full">
+                <thead>
+                    <tr>
+                        <th class="w-1/2 px-6 py-3 table-header">Task Name</th>
+                        <th class="w-1/4 px-6 py-3 table-header">Pending</th>
+                        <th class="w-1/4 px-6 py-3 table-header">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="hover-row">
+                        <td class="border px-6 py-4 table-cell editable">Eat food</td>
+                        <td class="border px-6 py-4 table-cell editable">True</td>
+                        <td class="border px-6 py-4 table-cell">
+                            <span class="delete-button" onclick="deleteRow(this.parentElement.parentElement.rowIndex)">Delete</span>
+                        </td>
+                    </tr>
+                    <tr class="hover-row">
+                        <td class="border px-6 py-4 table-cell editable">Dance</td>
+                        <td class="border px-6 py-4 table-cell editable">False</td>
+                        <td class="border px-6 py-4 table-cell">
+                            <span class="delete-button" onclick="deleteRow(this.parentElement.parentElement.rowIndex)">Delete</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Plans</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+			cursor: url('white_circle_cursor.png'), auto;
+            font-family: 'Inter', sans-serif;
+        }
+        .rainbow-button {
+            background-image: linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            position: relative;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .rainbow-button::after {
+            content: '';
+            background: linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+            display: block;
+            position: absolute;
+            top: 0; right: 0; bottom: 0; left: 0;
+            z-index: -1;
+            transition: transform .5s ease;
+            transform: scale(0);
+            transform-origin: center;
+        }
+        .rainbow-button:hover::after {
+            transform: scale(2);
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        .feature-item i {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body class="bg-black text-white">
+    <div class="container mx-auto px-4 py-8">
+        <div class="border-b border-gray-700 pb-4">
+            <nav class="flex justify-between items-center">
+                <div class="flex space-x-4">
+                    <a href="#" class="text-white hover:text-gray-300">Product</a>
+                    <span class="text-gray-500">•</span>
+                    <a href="#" class="text-white hover:text-gray-300">Pricing</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="text-white hover:text-gray-300">Login</a>
+                    <a href="#" class="bg-blue-500 text-white px-4 py-2 rounded-md shadow-lg hover:bg-blue-600 transition duration-300 ease-in-out transform hover:-translate-y-1 hover:scale-110">Register Now it's Free</a>
+                </div>
+            </nav>
+        </div>
+
+        <div class="text-center mt-12">
+            <h2 class="text-3xl font-semibold">Pricing</h2>
+            <h1 class="text-6xl font-bold mt-4">Choose a plan that's right for you and your team</h1>
+            <p class="text-gray-400 mt-4">Whether you are a small company or a thriving open source project, there is a perfect plan for you.Start for free, no credit card required!</p>
+        </div>
+
+        <div class="flex justify-center space-x-8 mt-12">
+            <!-- Basic Plan -->
+            <div class="bg-white text-black rounded-lg p-8 card transition duration-300 ease-in-out">
+                <p class="text-2xl font-bold">$9.99/month</p>
+                <h3 class="text-xl font-semibold mt-4">Basic plan</h3>
+                <ul class="mt-4">
+                    <li class="feature-item">
+                        <i class="fas fa-check text-green-500"></i>
+                        <span>Basic features</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="fas fa-check text-green-500"></i>
+                        <span>Basic features</span>
+                    </li>
+                    <li class="feature-item">
+                        <span>Basic features</span>
+                    </li>
+                    <li class="feature-item">
+                        <span>Basic features</li>
+                </ul>
+                <button class="rainbow-button mt-4 px-4 py-2 rounded-md shadow-lg transition duration-300 ease-in-out">Buy Now</button>
+            </div>
+
+            <!-- Business Plan -->
+            <div class="bg-white text-black rounded-lg p-8 card transition duration-300 ease-in-out">
+                <p class="text-2xl font-bold">$99.9/month</p>
+                <h3 class="text-xl font-semibold mt-4">Business plan</h3>
+                <ul class="mt-4">
+                    <li class="feature-item">
+                        <i class="fas fa-check text-green-500"></i>
+                        <span>Premium features</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="fas fa-check text-green-500"></i>
+                        <span>Premium features</span>
+                    </li>
+                    <li class="feature-item">
+                        <span>Premium features</span>
+                    </li>
+                    <li class="feature-item">
+                        <span>Premium features</span>
+                    </li>
+                </ul>
+                <button class="rainbow-button mt-4 px-4 py-2 rounded-md shadow-lg transition duration-300 ease-in-out">Buy Now</button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="bg-white text-black rounded-lg p-8 card transition duration-300 ease-in-out">
+                <p class="text-2xl font-bold">$999/month</p>
+                <h3 class="text-xl font-semibold mt-4">Enterprise plan</h3>
+                <ul class="mt-4">
+                    <li class="feature-item">
+                        <i class="fas fa-check text-green-500"></i>
+                        <span>Enterprise features</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="fas fa-check text-green-500"></i>
+                        <span>Enterprise features</span>
+                    </li>
+                    <li class="feature-item">
+                        <span>Enterprise features</span>
+                    </li>
+                    <li class="feature-item">
+                        <span>Enterprise features</span>
+                    </li>
+                </ul>
+                <button class="rainbow-button mt-4 px-4 py-2 rounded-md shadow-lg transition duration-300 ease-in-out">Buy Now</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
