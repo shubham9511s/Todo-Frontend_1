@@ -1,12 +1,20 @@
 <html lang="en">
 <head>
+	<div>
+    <input id="apiKeyInput" type="text" placeholder="Enter API Key">
+    <button onclick="saveApiKey()">Save API Key</button>
+	</div>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task List</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+	
     <style>
         body {
+			 background: linear-gradient(to right, #6dd5ed, #2193b0); /* Cool blue gradient */
+        color: #333; /* Adjust text color for better readability */
+        
             background-color: #7FDBDA;
         }
         .table-header {
@@ -41,80 +49,313 @@
         }
     </style>
     <script>
-        // Function to create an editable cell
-        function createEditableCell(content) {
-            var cell = document.createElement('td');
-            cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
-            var input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'cell-input';
-            input.value = content;
-            input.onkeypress = function(event) {
-                if (event.key === 'Enter') {
-                    cell.innerHTML = this.value; // Update the cell with the input value
-                    cell.classList.add('editable'); // Make the cell editable again
+		function saveApiKey() {
+    const apiKey = document.getElementById('apiKeyInput').value;
+    localStorage.setItem('apiKey', apiKey);
+}
+
+function getApiKey() {
+    return localStorage.getItem('apiKey');
+}
+		console.log(getApiKey())
+		let isEditing = false;
+
+		function createEditableCell(content, row, isTaskName) {
+    var cell = document.createElement('td');
+    cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
+
+    if (isTaskName) {
+        // For task name, use a text input
+        var input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'cell-input';
+        input.value = content;
+    } else {
+        // For pending status, use a dropdown
+        var input = document.createElement('select');
+        input.className = 'cell-input';
+
+        var optionTrue = document.createElement('option');
+        optionTrue.value = 'True';
+        optionTrue.text = 'True';
+        input.appendChild(optionTrue);
+
+        var optionFalse = document.createElement('option');
+        optionFalse.value = 'False';
+        optionFalse.text = 'False';
+        input.appendChild(optionFalse);
+
+        input.value = content; // Set the current value as selected
+    }
+
+    input.onfocus = function() {
+        isEditing = true;
+    };
+
+    input.onchange = async function() {
+        await handleCellUpdate(input, cell, row, isTaskName);
+        isEditing = false;
+    };
+
+    input.onblur = async function() {
+        await handleCellUpdate(input, cell, row, isTaskName);
+        isEditing = false;
+    };
+
+    cell.appendChild(input);
+    return cell;
+}
+
+async function handleCellUpdate(input, cell, row, isTaskName) {
+    let newValue;
+    if (isTaskName) {
+        newValue = input.value;
+        row.setAttribute('data-taskname', newValue);
+    } else {
+        newValue = input.value; // Get the selected value from the dropdown
+    }
+
+    let originalTaskName = row.getAttribute('data-original-taskname');
+    if (!originalTaskName || originalTaskName === '') {
+        // This is a new task, so call createTask
+        let isPending = row.cells[1].querySelector('select').value === 'True';
+        await createTask(newValue, isPending);
+        row.setAttribute('data-original-taskname', newValue); // Update original task name
+    } else {
+        // This is an existing task, so call updateTask
+        await updateTask(row);
+    }
+
+    // Check if the input is still a child of the cell before removing
+    if (cell.contains(input)) {
+        cell.removeChild(input);
+    }
+
+    cell.innerHTML = newValue;
+    cell.classList.add('editable');
+}
+
+async function createTask(taskName, isPending) {
+    // Implement the createTask function to send POST request to the server
+    // ...
+}
+
+async function updateTask(row) {
+    // Existing implementation of updateTask
+    // ...
+}
+
+
+
+async function updateTask(row) {
+    var originalTaskName = row.getAttribute('data-original-taskname');
+	var updatedTaskName = row.getAttribute('data-taskname') || row.cells[0].innerText;
+     var pendingStatus = row.cells[1].querySelector('select').value === 'True';
+     //var pendingStatus = row.cells[1].querySelector('input').checked;
+    var data = {
+        name: updatedTaskName,
+        pending: pendingStatus
+    };
+
+    // Check if originalTaskName is not null
+    if (!originalTaskName) {
+        console.error("Original task name is missing.");
+        return;
+    }
+
+    var apiURL = `http://localhost:8080/http://13.233.137.8:8000/task/${encodeURIComponent(originalTaskName)}`;
+    var requestOptions = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+			'x-api-key': getApiKey()
+        },
+        body: JSON.stringify(data)
+    };
+
+    // Log the request details
+    console.log("Sending API Request:");
+    console.log("URL:", apiURL);
+    console.log("Request Options:", requestOptions);
+
+    try {
+        const response = await fetch(apiURL, requestOptions);
+        // ... rest of the code ...
+    } catch (error) {
+        console.error('Error updating task:', updatedTaskName, error);
+    }
+}
+
+function createDeleteCell(rowIndex) {
+    var cell = document.createElement('td');
+    cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
+    var button = document.createElement('span');
+    button.innerText = 'Delete';
+    button.className = 'delete-button';
+    button.onclick = function() {
+        deleteRow(rowIndex);
+    };
+    cell.appendChild(button);
+    return cell;
+}
+
+function deleteRow(rowIndex) {
+    var table = document.getElementById("taskTable");
+    var row = table.rows[rowIndex];
+
+    // Assuming the first cell contains the input element for the task name
+    var taskNameInput = row.cells[0].getElementsByTagName('input')[0];
+    var taskName = taskNameInput ? taskNameInput.value.trim() : '';
+
+    if (taskName) {
+        deleteTask(taskName).then(() => {
+            console.log('Deleted task:', taskName);
+            table.deleteRow(rowIndex);
+        }).catch(error => {
+            console.error('Error deleting task:', taskName, error);
+        });
+    } else {
+        console.error('Could not find task name for row:', rowIndex);
+    }
+}
+
+
+
+
+async function deleteTask(taskName) {
+    // Ensure taskName is not null or undefined
+    if (!taskName) {
+        console.error("No task name provided for deletion");
+        return;
+    }
+
+    var apiURL = `http://localhost:8080/http://13.233.137.8:8000/task/${encodeURIComponent(taskName)}`;
+    var requestOptions = {
+        method: 'DELETE',
+		headers: {
+            'Content-Type': 'application/json',
+			'x-api-key': getApiKey()
+        }
+		
+    };
+
+    try {
+        const response = await fetch(apiURL, requestOptions);
+        if (response.ok) {
+            console.log("Task deleted successfully");
+        } else {
+            const errorBody = await response.text();
+            console.error("Server responded with error:", errorBody);
+            throw new Error('Failed to delete task');
+        }
+    } catch (error) {
+        console.error('Error deleting task:', error);
+        throw error;
+    }
+}
+
+
+function makeCellsEditable() {
+    var cells = document.querySelectorAll('#taskTable .editable');
+    cells.forEach(function(cell) {
+        cell.onclick = function() {
+            var input = createEditableCell(this.innerText, this.parentNode).firstChild;
+            this.innerHTML = '';
+            this.appendChild(input);
+            input.focus();
+        };
+    });
+}
+
+function populateTable(data) {
+    const table = document.getElementById("taskTable").getElementsByTagName('tbody')[0];
+    table.innerHTML = ''; // Clear the table before repopulating
+
+    Object.entries(data.Tasks).forEach(([taskName, pendingStatus]) => {
+        const row = table.insertRow();
+        row.setAttribute('data-original-taskname', taskName); // Set original task name for each loaded task
+        const cell1 = createEditableCell(taskName, row, true);
+        const cell2 = createEditableCell(pendingStatus ? 'True' : 'False', row, false);
+        const cell3 = createDeleteCell(table.rows.length); // Pass the updated rowIndex
+        row.appendChild(cell1);
+        row.appendChild(cell2);
+        row.appendChild(cell3);
+        row.classList.add('hover-row');
+    });
+    makeCellsEditable(); // Make cells editable after populating
+	}
+	
+
+
+async function loadTasks() {
+    if (!isEditing) {
+        try {
+            var requestOptions = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': getApiKey()
                 }
             };
-            input.onblur = function() {
-                cell.innerHTML = this.value; // Update the cell with the input value
-                cell.classList.add('editable'); // Make the cell editable again
-            };
-            cell.appendChild(input);
-            return cell;
+            const response = await fetch('http://localhost:8080/http://13.233.137.8:8000/', requestOptions);
+            const data = await response.json();
+            populateTable(data); // Call a separate function to populate the table
+        } catch (error) {
+            console.error('Error fetching tasks:', error);
         }
+    }
+}	
 
-        // Function to add a new editable row when the plus button is clicked
-        function addRow() {
-            var table = document.getElementById("taskTable");
-            var row = table.insertRow(-1); // Insert a row at the end of the table
-            var cell1 = createEditableCell('New Task');
-            var cell2 = createEditableCell('False');
-            var cell3 = createDeleteCell(row.rowIndex);
-            row.appendChild(cell1);
-            row.appendChild(cell2);
-            row.appendChild(cell3);
-            row.classList.add('hover-row'); // Add hover effect to the new row
-            cell1.firstChild.focus(); // Automatically focus the input for the task name
+async function createTask(taskName, isPending) {
+    var data = {
+        name: taskName,
+        pending: isPending
+    };
+
+    var requestOptions = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+			'x-api-key': getApiKey()
+        },
+        body: JSON.stringify(data)
+    };
+
+    try {
+        const response = await fetch('http://localhost:8080/http://13.233.137.8:8000/', requestOptions);
+        if(response.ok) {
+            console.log("Task created successfully");
+            loadTasks(); // Reload tasks to reflect the new task
+        } else {
+            console.error("Failed to create task");
         }
+    } catch (error) {
+        console.error('Error creating task:', error);
+    }
+}
 
-        // Function to create a delete cell with a button
-        function createDeleteCell(rowIndex) {
-            var cell = document.createElement('td');
-            cell.classList.add('border', 'px-6', 'py-4', 'table-cell');
-            var button = document.createElement('span');
-            button.innerText = 'Delete';
-            button.className = 'delete-button';
-            button.onclick = function() {
-                deleteRow(rowIndex);
-            };
-            cell.appendChild(button);
-            return cell;
-        }
 
-        // Function to delete a row and log the deletion
-        function deleteRow(rowIndex) {
-            var table = document.getElementById("taskTable");
-            var row = table.rows[rowIndex];
-            var taskName = row.cells[0].innerText;
-            console.log('Deleted task:', taskName); // Log the deleted task name
-            table.deleteRow(rowIndex);
-        }
+function addRow() {
+    var table = document.getElementById("taskTable");
+    var row = table.insertRow(-1);
+    row.setAttribute('data-original-taskname', ''); // Initially empty
+    var cell1 = createEditableCell('', row, true); // Empty task name to be filled
+    var cell2 = createEditableCell('False', row, false); // Default pending status
+    var cell3 = createDeleteCell(row.rowIndex);
+    row.appendChild(cell1);
+    row.appendChild(cell2);
+    row.appendChild(cell3);
+    row.classList.add('hover-row');
+    cell1.firstChild.focus();
+}
 
-        // Function to make existing cells editable
-        function makeCellsEditable() {
-            var cells = document.querySelectorAll('#taskTable .editable');
-            cells.forEach(function(cell) {
-                cell.onclick = function() {
-                    var input = createEditableCell(this.innerText).firstChild;
-                    this.innerHTML = '';
-                    this.appendChild(input);
-                    input.focus();
-                };
-            });
-        }
 
-        // Call this function to make cells editable on page load
-        window.onload = makeCellsEditable;
+window.onload = function() {
+     makeCellsEditable();
+    loadTasks(); // Load tasks initially
+    setInterval(loadTasks, 500	); 
+};
+ 
     </script>
 </head>
 <body>
@@ -134,17 +375,13 @@
                 </thead>
                 <tbody>
                     <tr class="hover-row">
-                        <td class="border px-6 py-4 table-cell editable">Eat food</td>
-                        <td class="border px-6 py-4 table-cell editable">True</td>
-                        <td class="border px-6 py-4 table-cell">
-                            <span class="delete-button" onclick="deleteRow(this.parentElement.parentElement.rowIndex)">Delete</span>
+
                         </td>
                     </tr>
                     <tr class="hover-row">
-                        <td class="border px-6 py-4 table-cell editable">Dance</td>
-                        <td class="border px-6 py-4 table-cell editable">False</td>
-                        <td class="border px-6 py-4 table-cell">
-                            <span class="delete-button" onclick="deleteRow(this.parentElement.parentElement.rowIndex)">Delete</span>
+                       
+
+                            
                         </td>
                     </tr>
                 </tbody>

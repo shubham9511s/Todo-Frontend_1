@@ -4,16 +4,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signup Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		function showNotification() {
+    console.log('Showing notification'); // For debugging
+    notification.classList.remove('hidden');
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 3000);
+}
+    document.addEventListener("DOMContentLoaded", function() {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value
+            };
+			frm = JSON.stringify(formData)
+
+            fetch('http://localhost:8080/http://13.233.137.8:8080/api/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+					'x-requested-with': '7ba558f4-b214-45cf-9e8e-3e086d5c25a9sasa',
+					'Origin':'yes'
+                },
+                body: JSON.stringify(formData),
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log('Success:', data);
+				console.log(frm)
+				showNotification();
+                // Handle success (e.g., showing a success message)
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+				console.log(frm)
+                // Handle error (e.g., showing an error message)
+            });
+        });
+    });
+</script>
+
     <style>
         body {
 			cursor: url('white_circle_cursor.png'), auto;
             background-color: #e5e7eb; /* This sets the background color to the light gray seen in the image */
         }
+
+    .notification-style {
+        padding: 10px;
+        color: white;
+        background-color: green;
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000;
+        transition: all 0.5s ease;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+
     </style>
+	
+
 </head>
+	
 <body class="flex items-center justify-center h-screen">
+
+	<div id="notification" class="hidden notification-style">User registered successfully!</div>
     <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h1 class="text-2xl font-bold text-center mb-4">Signup Form</h1>
+        <h1 class="text-2xl font-bold text-center mb-4">Sign Up Form</h1>
         <form>
             <div class="mb-4">
                 <label for="username" class="sr-only">Username</label>
@@ -23,7 +91,7 @@
                 <label for="password" class="sr-only">Password</label>
                 <input type="password" id="password" name="password" placeholder="Password" class="w-full p-2 border border-gray-300 rounded-md">
             </div>
-            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">Login</button>
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">Register</button>
         </form>
     </div>
 </body>
