@@ -23,7 +23,7 @@
             };
 			frm = JSON.stringify(formData)
 
-            fetch('http://localhost:8080/http://13.233.137.8:8080/api/users/register', {
+            fetch('http://localhost:9000/http://13.233.137.8:8080/api/users/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,6 +37,9 @@
                 console.log('Success:', data);
 				console.log(frm)
 				showNotification();
+				setTimeout(function() {
+                window.location.href = 'login.html';
+            }, 1800);
                 // Handle success (e.g., showing a success message)
             })
             .catch((error) => {
