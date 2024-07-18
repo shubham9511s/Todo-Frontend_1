@@ -163,7 +163,7 @@ async function updateTask(row) {
         return;
     }
 
-    var apiURL = `http://localhost:9000/http://localhost:8000/task/${encodeURIComponent(originalTaskName)}`;
+    var apiURL = `http://13.233.156.150:9000/http://13.233.156.150:8000/task/${encodeURIComponent(originalTaskName)}`;
     var requestOptions = {
         method: 'PUT',
         headers: {
@@ -229,7 +229,7 @@ async function deleteTask(taskName) {
         return;
     }
 
-    var apiURL = `http://localhost:9000/http://localhost:8000/task/${encodeURIComponent(taskName)}`;
+    var apiURL = `http://13.233.156.150:9000/http://13.233.156.150:8000/task/${encodeURIComponent(taskName)}`;
     var requestOptions = {
         method: 'DELETE',
 		headers: {
@@ -297,7 +297,7 @@ async function loadTasks() {
                     'x-api-key': getApiKey()
                 }
             };
-            const response = await fetch('http://localhost:9000/http://localhost:8000/', requestOptions);
+            const response = await fetch('http://13.233.156.150:9000/http://13.233.156.150:8000/', requestOptions);
             const data = await response.json();
             populateTable(data); // Call a separate function to populate the table
         } catch (error) {
@@ -322,7 +322,7 @@ async function createTask(taskName, isPending) {
     };
 
     try {
-        const response = await fetch('http://localhost:9000/http://localhost:8000/', requestOptions);
+        const response = await fetch('http://13.233.156.150:9000/http://13.233.156.150:8000/', requestOptions);
         if(response.ok) {
             console.log("Task created successfully");
             loadTasks(); // Reload tasks to reflect the new task
