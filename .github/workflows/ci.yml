@@ -1,0 +1,87 @@
+# CICD using GitHub actions
+
+name: CI-pipeline
+
+on:
+  push:
+    branches:
+      - exp1
+   
+
+jobs:
+
+  build & scan:
+    runs-on: ubuntu-latest
+    # checkout the repo and scan the code
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install SonarQube Scanner
+        run: npm install -g sonarqube-scanner
+
+    - name: Run SonarQube Scanner
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=frontend-app \
+            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}  
+
+  push:
+    runs-on: ubuntu-latest
+    # Docker build and push 
+    needs: build & scan
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and Push action
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{github.run_id}}
+
+  # update-manifest:
+  #   runs-on: ubuntu-latest
+  #   needs: docker
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+  #       with:
+  #         repository: shubham9511s/manifest-file
+  #         ref: main
+
+  #     - name: Update Deployment file
+  #       env:
+  #         GIT_REPO_NAME: "manifest-file"
+  #         GIT_USER_NAME: "shubham9511s"
+  #         REPO_IMAGE_NAME: "shubhamshinde2025/node-app"
+  #       run: |
+  #         git config user.email "shubham.ssc100@gmail.com"
+  #         git config user.name "shubham9511s"
+  #         BUILD_NUMBER=${GITHUB_RUN_NUMBER}
+  #         echo $BUILD_NUMBER
+  #         imageTag=$(grep -oP '(?<=node-app:)[^ ]+' manifest/main.yml)
+  #         echo $imageTag
+  #         sed -i "s|${REPO_IMAGE_NAME}:${imageTag}|${REPO_IMAGE_NAME}:${BUILD_NUMBER}|" manifest/main.yml
+  #         git add manifest/main.yml
+  #         git commit -m "Update deployment Image to version ${BUILD_NUMBER}"
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Push changes
+  #       uses: ad-m/github-push-action@v2
+  #       with:
+  #         github_token: ${{ secrets.GITHUB_TOKEN }}
