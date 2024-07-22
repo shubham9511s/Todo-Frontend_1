@@ -63,9 +63,15 @@ jobs:
         token: ${{ secrets.GIT_TOKEN }}
         path: todo-k8s
 
-    - name: Update tag in Helm chart
+    - name: Update tag in repo
       run: |
-        sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' frontend.yaml
+        cd todo-k8s 
+        if [ -f "frontend.yml" ]; then
+          sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' frontend.yml
+        else
+          echo "frontend.yaml not found!"
+          exit 1
+        fi
 
     - name: Commit and push changes
       env:
