@@ -61,12 +61,6 @@ jobs:
       with:
         repository: shubham9511s/manifest-file  # Replace with your git repo
         token: ${{ secrets.GIT_TOKEN }}
-        path: todo-k8s
-
-    - name: List contents of todo-k8s
-      run: |
-        cd todo-k8s
-        ls -R
 
     - name: Update tag in repo
       run: |
