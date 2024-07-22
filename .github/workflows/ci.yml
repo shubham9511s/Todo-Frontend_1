@@ -52,26 +52,28 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{github.run_id}}
 
-  update-manifest:
+  update-newtag-in-github-repo:
     runs-on: ubuntu-latest
+    needs: push
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          repository: shubham9511s/manifest-file
-          ref: main
+    - name: Checkout the manifest repository
+      uses: actions/checkout@v3
+      with:
+        repository: shubham9511s/manifest-file  # Replace with your git repo
+        token: ${{ secrets.GIT_TOKEN }}
+        path: todo-k8s
 
-      - name: Update Deployment file
-        env:
-          GIT_REPO_NAME: "manifest-file"
-          GIT_USER_NAME: "shubham9511s"
-          REPO_IMAGE_NAME: "shubhamshinde2206/frontend"
-        run: |
-          git config user.email "shubham.ssc100@gmail.com"
-          git config user.name "shubham9511s"
-          imageTag=$(grep -oP '(?<=frontend:)[^ ]+' todo-k8s/frontend.yml)
-          echo $imageTag
-          sed -i "s|${REPO_IMAGE_NAME}:${imageTag}|${REPO_IMAGE_NAME}:${github.run_id}|" todo-k8s/frontend.yml
-          git add todo-k8s/ci.yml
-          git commit -m "Update deployment Image to version ${github.run._id}"
-          git push 
+    - name: Update tag in Helm chart
+      run: |
+        sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' todo-k8s/frontend.yaml
+
+    - name: Commit and push changes
+      env:
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+      run: |
+        cd helm-repo
+        git config --global user.email "shubham.ssc100@gmail.com"
+        git config --global user.name "shubham9511s"
+        git add todo-k8s/frontend.yml
+        git commit -m "Update tag in repo to ${github.run_id}"
+        git push
