@@ -10,25 +10,23 @@ on:
 
 jobs:
 
-  build & scan:
-    runs-on: ubuntu-latest
-    # checkout the repo and scan the code
-    steps:
+build-and-scan:
+  runs-on: ubuntu-latest
+  steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
     - name: Install SonarQube Scanner
-        run: npm install -g sonarqube-scanner
+      run: npm install -g sonarqube-scanner
 
     - name: Run SonarQube Scanner
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=frontend-app \
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}  
-
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=frontend-app \
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
   push:
     runs-on: ubuntu-latest
     # Docker build and push 
