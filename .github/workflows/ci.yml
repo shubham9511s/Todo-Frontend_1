@@ -52,34 +52,29 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/frontend:${{github.run_id}}
 
-  # update-manifest:
-  #   runs-on: ubuntu-latest
-  #   needs: docker
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v3
-  #       with:
-  #         repository: shubham9511s/manifest-file
-  #         ref: main
+  update-helm-chart:
+    runs-on: ubuntu-latest
+    needs: push
 
-  #     - name: Update Deployment file
-  #       env:
-  #         GIT_REPO_NAME: "manifest-file"
-  #         GIT_USER_NAME: "shubham9511s"
-  #         REPO_IMAGE_NAME: "shubhamshinde2025/node-app"
-  #       run: |
-  #         git config user.email "shubham.ssc100@gmail.com"
-  #         git config user.name "shubham9511s"
-  #         BUILD_NUMBER=${GITHUB_RUN_NUMBER}
-  #         echo $BUILD_NUMBER
-  #         imageTag=$(grep -oP '(?<=node-app:)[^ ]+' manifest/main.yml)
-  #         echo $imageTag
-  #         sed -i "s|${REPO_IMAGE_NAME}:${imageTag}|${REPO_IMAGE_NAME}:${BUILD_NUMBER}|" manifest/main.yml
-  #         git add manifest/main.yml
-  #         git commit -m "Update deployment Image to version ${BUILD_NUMBER}"
-  #       with:
-  #         github-token: ${{ secrets.GITHUB_TOKEN }}
-  #     - name: Push changes
-  #       uses: ad-m/github-push-action@v2
-  #       with:
-  #         github_token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GIT_TOKEN }}
+        repository: shubham9511s/manifest-file
+        path: todo-k8s
+
+    - name: Update tag in Helm chart
+      run: |
+        sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' todo-k8s/frontend.yml
+
+    - name: Commit and push changes
+      env:
+        GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+      run: |
+        cd manifest-file
+        git config --global user.email "shubham.ssc100@gmail.com"
+        git config --global user.name "shubham9511s"
+        git add todo-k8s/frontend.yaml
+        git commit -m "Update tag in github to ${github.run.id}"
+        git push https://${GIT_TOKEN}@github.com/shubham9511s/manifest-file.git HEAD:main      
