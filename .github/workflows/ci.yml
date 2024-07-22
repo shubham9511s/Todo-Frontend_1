@@ -6,6 +6,9 @@ on:
   push:
     branches:
       - exp1
+    paths-ignore:
+      - 'k8s/**'            # Ignore changes in the 'k8s' directory
+      - 'README.md'
    
 
 jobs:
@@ -57,15 +60,11 @@ jobs:
     needs: push
     steps:
     - name: Checkout the manifest repository
-      uses: actions/checkout@v3
-      with:
-        repository: shubham9511s/manifest-file  # Replace with your git repo
-        token: ${{ secrets.GIT_TOKEN }}
+      uses: actions/checkout@v4
 
     - name: Update tag in repo
-      run: |
-        cd todo-k8s 
-          sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' frontend.yml
+      run: | 
+          sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' k8s/frontend.yml
     
 
     - name: Commit and push changes
@@ -74,6 +73,6 @@ jobs:
       run: |
         git config --global user.email "shubham.ssc100@gmail.com"
         git config --global user.name "shubham9511s"
-        git add todo-k8s/frontend.yml
-        git commit -m "Update tag in repo to ${GITHUB_RUN_ID}"
+        git add k8s/frontend.yml
+        git commit -m "Update tag in repo "
         git push
