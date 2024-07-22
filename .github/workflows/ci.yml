@@ -69,7 +69,7 @@ jobs:
         run: |
           git config user.email "shubham.ssc100@gmail.com"
           git config user.name "shubham9511s"
-          imageTag=$(grep -oP '(?<=frontend:)[^ ]+' todo/main.yml)
+          imageTag=$(grep -oP '(?<=frontend:)[^ ]+' todo-k8s/ci.yml)
           echo $imageTag
           sed -i "s|${REPO_IMAGE_NAME}:${imageTag}|${REPO_IMAGE_NAME}:${github.run_id}|" todo-k8s/ci.yml
           git add todo-k8s/ci.yml
