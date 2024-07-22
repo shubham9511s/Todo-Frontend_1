@@ -30,7 +30,7 @@ jobs:
   push:
     runs-on: ubuntu-latest
     # Docker build and push 
-    needs: build & scan
+    needs: build-and-scan
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
