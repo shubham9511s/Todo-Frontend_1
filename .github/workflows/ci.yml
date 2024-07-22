@@ -75,5 +75,5 @@ jobs:
         git config --global user.email "shubham.ssc100@gmail.com"
         git config --global user.name "shubham9511s"
         git add todo-k8s/frontend.yml
-        git commit -m "Update tag in repo to ${github.run_id}"
+        git commit -m "Update tag in repo to ${GITHUB_RUN_ID}"
         git push
