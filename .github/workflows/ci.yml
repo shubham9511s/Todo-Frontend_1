@@ -71,12 +71,7 @@ jobs:
           git config user.name "shubham9511s"
           imageTag=$(grep -oP '(?<=frontend:)[^ ]+' todo/main.yml)
           echo $imageTag
-          sed -i "s|${REPO_IMAGE_NAME}:${imageTag}|${REPO_IMAGE_NAME}:${github.run_id}|" manifest/main.yml
+          sed -i "s|${REPO_IMAGE_NAME}:${imageTag}|${REPO_IMAGE_NAME}:${github.run_id}|" todo-k8s/ci.yml
           git add todo-k8s/ci.yml
           git commit -m "Update deployment Image to version ${github.run._id}"
-        with:
-          github-token: ${{ secrets.GIT_TOKEN }}
-      - name: Push changes
-        uses: ad-m/github-push-action@v2
-        with:
-          github_token: ${{ secrets.GIT_TOKEN }}
+          git push 
