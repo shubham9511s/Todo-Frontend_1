@@ -58,7 +58,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          repository: https://github.com/shubham9511s/manifest-file.git
+          repository: shubham9511s/manifest-file
           ref: main
 
       - name: Update Deployment file
