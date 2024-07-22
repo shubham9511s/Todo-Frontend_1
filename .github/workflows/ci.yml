@@ -65,7 +65,7 @@ jobs:
 
     - name: Update tag in Helm chart
       run: |
-        sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' todo-k8s/frontend.yaml
+        sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' frontend.yaml
 
     - name: Commit and push changes
       env:
@@ -74,6 +74,6 @@ jobs:
         cd helm-repo
         git config --global user.email "shubham.ssc100@gmail.com"
         git config --global user.name "shubham9511s"
-        git add todo-k8s/frontend.yml
+        git add frontend.yml
         git commit -m "Update tag in repo to ${github.run_id}"
         git push
