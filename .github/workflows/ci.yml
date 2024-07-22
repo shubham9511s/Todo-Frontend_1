@@ -76,7 +76,6 @@ jobs:
       env:
         GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
       run: |
-        cd helm-repo
         git config --global user.email "shubham.ssc100@gmail.com"
         git config --global user.name "shubham9511s"
         git add frontend.yml
