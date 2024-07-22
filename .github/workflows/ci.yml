@@ -64,7 +64,7 @@ jobs:
 
     - name: Update tag in repo
       run: | 
-          sed -i 's/tag: .*/tag: "${{ github.run_id }}"/' k8s/frontend.yml
+          sed -i 's|shubhamshinde2206/frontend:.*|shubhamshinde2206/frontend:${{ github.run_id }}|' k8s/frontend.yml
     
 
     - name: Commit and push changes
