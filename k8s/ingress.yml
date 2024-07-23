@@ -7,6 +7,10 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
+    alb.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
+    alb.ingress.kubernetes.io/cors-allow-headers: "Authorization,Content-Type,X-Amz-Date,X-Api-Key,X-Amz-Security-Token"
+    alb.ingress.kubernetes.io/cors-allow-origin: "*"
+    alb.ingress.kubernetes.io/cors-expose-headers: "Authorization"
 spec:
   ingressClassName: alb
   rules:
