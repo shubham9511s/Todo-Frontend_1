@@ -163,7 +163,7 @@ async function updateTask(row) {
         return;
     }
 
-    var apiURL = `http://cors-service:9000/http://rust-service:8000/task/${encodeURIComponent(originalTaskName)}`;
+    var apiURL = `http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/cors/http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/rust/task/${encodeURIComponent(originalTaskName)}`;
     var requestOptions = {
         method: 'PUT',
         headers: {
@@ -229,7 +229,7 @@ async function deleteTask(taskName) {
         return;
     }
 
-    var apiURL = `http://cors-service:9000/http://rust-service:8000/task/${encodeURIComponent(taskName)}`;
+    var apiURL = `http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/cors/http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/rust/task/${encodeURIComponent(taskName)}`;
     var requestOptions = {
         method: 'DELETE',
 		headers: {
@@ -297,7 +297,7 @@ async function loadTasks() {
                     'x-api-key': getApiKey()
                 }
             };
-            const response = await fetch('http://cors-service:9000/http://rust-service:8000/', requestOptions);
+            const response = await fetch('http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/cors/http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/rust/', requestOptions);
             const data = await response.json();
             populateTable(data); // Call a separate function to populate the table
         } catch (error) {
@@ -322,7 +322,7 @@ async function createTask(taskName, isPending) {
     };
 
     try {
-        const response = await fetch('http://cors-service:9000/http://rust-service:8000/', requestOptions);
+        const response = await fetch('http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/cors/http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/rust/', requestOptions);
         if(response.ok) {
             console.log("Task created successfully");
             loadTasks(); // Reload tasks to reflect the new task

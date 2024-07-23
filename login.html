@@ -50,7 +50,7 @@
 });
 
 async function loginUser(username, password) {
-    const response = await fetch('http://cors-service:9000/http://go-2-service:8086/login', {
+    const response = await fetch('http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/cors/http://k8s-todo-mainlb-8ddedbbfde-1583705440.ap-south-1.elb.amazonaws.com/go-2/login', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
