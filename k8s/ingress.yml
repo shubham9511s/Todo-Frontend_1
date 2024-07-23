@@ -22,6 +22,6 @@ spec:
             backend:
               service:
                 name: java-service
-                port:
+                port:   
                   number: 8080
-         
+      
