@@ -17,11 +17,11 @@ spec:
     - host: 
       http:
         paths:
-          - path: /
+          - path: /java
             pathType: Prefix
             backend:
               service:
-                name: frontend-service
+                name: java-service
                 port:   
-                  number: 80
+                  number: 8080
       
