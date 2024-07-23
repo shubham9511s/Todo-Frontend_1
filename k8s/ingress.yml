@@ -14,48 +14,14 @@ metadata:
 spec:
   ingressClassName: alb
   rules:
-    - host: 
+    - host: '*'
       http:
         paths:
-          # - path: /java
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: java-service
-          #       port:
-          #         number: 8080
-          # - path: /rust
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: rust-service
-          #       port:
-          #         number: 8000
-          # - path: /go1
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: go-1-service
-          #       port:
-          #         number: 9090
-          # - path: /go2
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: go-2-service
-          #       port:
-          #         number: 8086
-          # - path: /cors
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: cors-service
-          #       port:
-          #         number: 9000                               
-          - path: /
+          - path: /java
             pathType: Prefix
             backend:
               service:
-                name: frontend-service
+                name: java-service
                 port:
-                  number: 80
+                  number: 8080
+         
