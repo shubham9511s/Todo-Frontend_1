@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: shubhamshinde2206/frontend:10057460932
+        image: shubhamshinde2206/frontend:10092460915
         ports:
         - containerPort: 80
 
